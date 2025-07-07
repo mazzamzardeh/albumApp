@@ -45,4 +45,4 @@
         - find the album to update by ID from `req.params` and
         - update the jacket according to the `req.file`'s file name
         - send a response with the updated object
-    - Frontend: update the function `handleUpdate()` in Album.jsx
+    - Frontend: update the function `handleUpdate()` in `Album.jsx`
