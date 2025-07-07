@@ -7,14 +7,14 @@ function App() {
   const [albums, setAlbums] = useState([]);
   const [album, setAlbum] = useState([]);
 
-  const fileInput = useRef(null); // 1. this will hold a reference to our file input!
+  const fileInput = useRef(null); 
 
   useEffect(() => {
     getAlbums();
   }, [album]);
 
   async function getAlbums() {
-    const response = await fetch(`${import.meta.env.VITE_API}/albums`);
+    const response = await fetch("/albums");
     if (response.ok) {
       const data = await response.json();
       setAlbums(data);
@@ -27,15 +27,39 @@ function App() {
     });
   }
 
-  /* 
-  ? upon submitting the form, 
-  ? make a fetch call to "...API/add" 
-  ? send the formData including the file 
-  ? get the response and setAlbum() accordingly
-   */
-
   async function handleSubmit(e) {
     e.preventDefault();
+
+    if (!inputs.artist || !inputs.title || !inputs.year || !inputs.jacket) {
+      alert("Please fill in all fields and choose an image.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("artist", inputs.artist);
+    formData.append("title", inputs.title);
+    formData.append("year", inputs.year);
+    formData.append("jacket", inputs.jacket);
+
+    try {
+      const res = await fetch("/add", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to add album");
+      }
+
+      const addedAlbum = await res.json();
+      setAlbum(addedAlbum); 
+      setInputs({});
+      fileInput.current.value = ""; 
+      alert("Album added successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Error adding album.");
+    }
   }
 
   return (
@@ -65,7 +89,7 @@ function App() {
         />
         <input
           type="file"
-          ref={fileInput} // 2. this sets the reference to file input
+          ref={fileInput}
           onChange={(e) => setInputs({ ...inputs, jacket: e.target.files[0] })}
           accept="image/*"
         />
